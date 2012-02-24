@@ -15,4 +15,5 @@
 #    You should have received a copy of the GNU General Public License
 #    along with ngs_workflow.  If not, see <http://www.gnu.org/licenses/>.
 
-from ngs_workflows import utils
+import rpy2.robjects as robjects
+import fastq_info
