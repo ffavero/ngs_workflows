@@ -19,12 +19,14 @@ import os, sys, gzip
 
 def fastq_format(fastqfile):
    '''
-   read the quality line of a fastq file and test the encoded
+   read few quality lines of a fastq file and test the encoded
    number to determine the quality format.
    '''
    if fastqfile.endswith('.gz'):
       with gzip.open(fastqfile,'rb') as fastq:
          format = fastq_parse_format(fastq,1200)
+         # few became 1200, due to DNASeq data which might have
+         # a lot of N at the beginning. Hopefully RNASeq don't..
    else:
       with open(fastqfile,'rb') as fastq:
          format = fastq_parse_format(fastq,1200)
@@ -32,7 +34,7 @@ def fastq_format(fastqfile):
 
 def fastq_parse_format(fastqfileobj,n_seq):
    '''
-   It reads the first n_seq quelity lines
+   It reads the first n_seq quality lines
    ad consider the max and min value
    '''
    n        = 0
