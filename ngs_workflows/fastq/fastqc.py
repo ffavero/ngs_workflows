@@ -56,16 +56,30 @@ def fastq_adapters_trim(reads,adaptor,min_length):
    '''
    Remove the provided adaptor from a reads in the given fastq file 
    '''
-   
+   pass
    
 def find_adapter(reads,fasta):
    '''
    Given a fastq and a fasta files containig the more common adapters used
    this function will give the adaptors that whas probably used.
    '''
+   pass
    
-   
-   
-   
-   
-    
+def fastqc_report_grab_overappresented(fastqc_data):
+   '''
+   From the FastQC report (from FasqQC tool in java) grab the over rapresented
+   sequences line
+   '''
+   over_seqs = []
+   with open(fastqc_data, 'rb') as fasqc:
+      semaphore = 'red'
+      for line in fastqc:
+         if semaphore == 'red':
+            pass
+         elif semaphore == 'green':
+            
+            if line.startswith('>>END_MODULE'):
+               break
+         if line.startswith('>>Overrepresented sequences'):
+            semaphore = 'green'
+      return over_seqs
