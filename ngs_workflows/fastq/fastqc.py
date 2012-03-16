@@ -51,3 +51,21 @@ def fastq_base_filter(reads,Ns=3,base_treshold=20):
       }
    ''')
    return robjects.r['basefilt'](reads,Ns,base_treshold)
+
+def fastq_adapters_trim(reads,adaptor,min_length):
+   '''
+   Remove the provided adaptor from a reads in the given fastq file 
+   '''
+   
+   
+def find_adapter(reads,fasta):
+   '''
+   Given a fastq and a fasta files containig the more common adapters used
+   this function will give the adaptors that whas probably used.
+   '''
+   
+   
+   
+   
+   
+    
