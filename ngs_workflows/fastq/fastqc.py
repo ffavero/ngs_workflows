@@ -71,15 +71,18 @@ def fastqc_report_grab_overappresented(fastqc_data):
    sequences line
    '''
    over_seqs = []
-   with open(fastqc_data, 'rb') as fasqc:
+   with open(fastqc_data, 'rb') as fastqc:
       semaphore = 'red'
       for line in fastqc:
          if semaphore == 'red':
             pass
          elif semaphore == 'green':
-            
             if line.startswith('>>END_MODULE'):
                break
+            elif line.startswith('#'):
+               pass
+            else:
+               over_seqs.append(str(line.strip()))
          if line.startswith('>>Overrepresented sequences'):
             semaphore = 'green'
       return over_seqs
