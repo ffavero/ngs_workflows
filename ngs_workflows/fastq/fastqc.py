@@ -19,14 +19,17 @@ import rpy2.robjects as robjects
 from   rpy2.robjects.packages import importr
 import fastq_info
 
-def fastq_adjust(filename,Ns=3,base_treshold=20):
+def fastq_adjust(filename,filename_out=None,Ns=3,base_treshold=20):
    '''
    Reads the fastq file and adjust the reads quality
    '''
    shortread = importr('ShortRead')
    reads     = shortread.readFastq(filename)
    reads     = fastq_base_filter(reads,Ns=Ns,base_treshold=base_treshold)
-   return
+   if filename_out:
+      shortread.writeFastq(reads,filename_out)
+   else:
+      return reads
 
 def fastq_base_filter(reads,Ns=3,base_treshold=20):
    '''
@@ -42,7 +45,7 @@ def fastq_base_filter(reads,Ns=3,base_treshold=20):
    #reads     = reads.rx[idx_filt] ???? but the subscription does not works
    #Instead I would do like this.. for now:
    robjects.r('''
-      basefilt <- function (reads, Ns, basetreshold) {
+      basefilt <- function(reads, Ns, basetreshold) {
          require(ShortRead)
          filter1   <- nFilter(threshold=Ns)
          filter2   <- polynFilter(threshold=basetreshold, nuc=c("A","C","T","G"))
@@ -52,12 +55,49 @@ def fastq_base_filter(reads,Ns=3,base_treshold=20):
    ''')
    return robjects.r['basefilt'](reads,Ns,base_treshold)
 
-def fastq_adapters_trim(reads,adaptor,min_length):
+def fastq_adapters_quality_trim(filename,filename_out,adaptor,min_length=15,min_qual=20,five_trim=5):
    '''
-   Remove the provided adaptor from a reads in the given fastq file 
+   Remove the provided adaptor from a reads in the given fastq file
+   also trim the 5prime to a certain base, and the 3prime by quality.
+   finally keep only the reads with a cerain lenght after filtering
    '''
-   pass
-   
+   shortread = importr('ShortRead')
+   reads     = shortread.readFastq(filename)   
+   robjects.r('''
+      adap.quality.filt <- function(reads, adapter, min.length, min.qual,fivep.trim) {
+         require(ShortRead)
+         seqs <- sread(reads)
+         mismatchVector <- c(rep(2,length(DNAString(adapter))))
+         trimCoords <- trimLRPatterns(Rpattern=adapter, subject=seqs, max.Rmismatch=mismatchVector, ranges=T)
+         letter_subject <- DNAString(paste(rep.int("N", width(seqs)[1]), collapse=""))
+         subseq(seqs,start=end(trimCoords)+1,width=width(reads)-width(trimCoords)) <- letter <- as(Views(letter_subject, start=1, end=as.vector(width(reads)-width(trimCoords))), "DNAStringSet") 
+         seqs <- DNAStringSet(seqs, start=fivep.trim)
+         qual <- BStringSet(quality(quality(reads)), start=fivep.trim)
+         qual <- PhredQuality(qual)
+         myqual_mat <- matrix(charToRaw(as.character(unlist(qual))), nrow=length(qual), byrow=TRUE)
+         at <- myqual_mat < charToRaw(as.character(PhredQuality(as.integer(min.qual))))
+         letter <- as(Views(letter_subject, start=1, end=rowSums(at)), "DNAStringSet")
+         injectedseqs <- replaceLetterAt(seqs, at, letter)
+         nadapter <- paste(rep("N", max(width(injectedseqs))), sep="", collapse="")
+         mismatchVector <- c(rep(0,width(nadapter)))
+         trimCoords <- trimLRPatterns(Rpattern=nadapter, subject=injectedseqs, max.Rmismatch=mismatchVector, ranges=T)
+         seqs <- DNAStringSet(seqs, start=start(trimCoords), end=end(trimCoords))
+         qual <- BStringSet(qual, start=start(trimCoords), end=end(trimCoords))
+         qual <- SFastqQuality(qual)
+         trimmed <- ShortReadQ(sread=seqs, quality=qual, id=id(reads))
+         trimmed <- trimmed[min.length <= width(sread(trimmed))]
+         filter1   <- nFilter(threshold=0)
+         filter2   <- polynFilter(threshold=round(max(width(trimmed))/3,0), nuc=c("A","C","T","G"))
+         filterall <- compose(filter1,filter2)
+         trimmed[filterall(sread(trimmed))]
+         }
+   ''')   
+   if filename_out:
+      shortread.writeFastq(robjects.r['adap.quality.filt'](reads,adaptor,min_length,min_qual,five_trim)
+   else:
+      return robjects.r['adap.quality.filt'](reads,adaptor,min_length,min_qual,five_trim)
+      
+      
 def find_adapter(reads,fasta):
    '''
    Given a fastq and a fasta files containig the more common adapters used
