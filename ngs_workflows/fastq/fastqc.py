@@ -55,9 +55,9 @@ def fastq_base_filter(reads,Ns=3,base_treshold=20):
    ''')
    return robjects.r['basefilt'](reads,Ns,base_treshold)
 
-def fastq_adapters_quality_trim(filename,filename_out,adaptor,min_length=15,min_qual=20,five_trim=5):
+def fastq_adapters_quality_trim(filename,filename_out,adapter,min_length=15,min_qual=20,five_trim=5):
    '''
-   Remove the provided adaptor from a reads in the given fastq file
+   Remove the provided adapter from a reads in the given fastq file
    also trim the 5prime to a certain base, and the 3prime by quality.
    finally keep only the reads with a cerain lenght after filtering
    '''
@@ -93,15 +93,15 @@ def fastq_adapters_quality_trim(filename,filename_out,adaptor,min_length=15,min_
          }
    ''')   
    if filename_out:
-      shortread.writeFastq(robjects.r['adap.quality.filt'](reads,adaptor,min_length,min_qual,five_trim)
+      shortread.writeFastq(robjects.r['adap.quality.filt'](reads,adapter,min_length,min_qual,five_trim)
    else:
-      return robjects.r['adap.quality.filt'](reads,adaptor,min_length,min_qual,five_trim)
+      return robjects.r['adap.quality.filt'](reads,adapter,min_length,min_qual,five_trim)
       
       
 def find_adapter(reads,fasta):
    '''
    Given a fastq and a fasta files containig the more common adapters used
-   this function will give the adaptors that whas probably used.
+   this function will give the adapters that whas probably used.
    '''
    pass
    

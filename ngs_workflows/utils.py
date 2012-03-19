@@ -15,7 +15,49 @@
 #    You should have received a copy of the GNU General Public License
 #    along with ngs_workflow.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, sys, gzip
+import os, sys, gzip, ngs_plugins
+
+class NGSplugin:
+   '''
+   Define a plugin class, genic in a way that it will be possible to create
+   a file describe the function purpose, the needed arguments and the output
+   so to present an absract way to execute it to the main program.
+   '''
+   def __init__(self,purpose,input_type,output_type):
+      self.purpose      = purpose
+      self.input_type   = input_type
+      self.output_type  = output_type
+      self.plugins_list = get_plugins(ngs_plugins)
+
+
+def get_plugins(plugins_module):
+   '''
+   Look into the plugins directory and create a list with all the available
+   modules.
+   '''
+   plugins_list = []
+   for dirname, dirnames, filenames in walklevel(check_dir(getattr(plugins_module,'__path__')[0]),level=1):
+      for filename in filenames:
+         if filename.endswith('.py'):
+            if filename.startswith('__'):
+               pass
+            else:
+               plugins_list.append(filename.strip()[:-3])
+   return plugins_list
+
+
+
+def config_parse(plugin):
+   '''
+   Parse the config file in the project directory, and find the plugin specific
+   configuration. If the config file is not found a new one with sdandard
+   parameters will be created
+   '''
+
+def config_new(directory):
+   '''
+   Function dedicated to create a new config file in the project directory
+   '''
 
 def check_dir(directory):
    '''
