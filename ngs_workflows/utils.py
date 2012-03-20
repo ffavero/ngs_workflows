@@ -23,14 +23,17 @@ class NGSplugin:
    a file describe the function purpose, the needed arguments and the output
    so to present an absract way to execute it to the main program.
    '''
-   def __init__(self,purpose,input_type,output_type):
-      self.purpose      = purpose
-      self.input_type   = input_type
-      self.output_type  = output_type
-      self.plugins_list = get_plugins(ngs_plugins)
+   def __init__(self,plugin_dict):
+      self.name         = plugin_dict['NAME']
+      self.description  = plugin_dict['DESCRIPTION']
+      self.purpose      = plugin_dict['PURPOSE']
+      self.input_type   = plugin_dict['INPUT_TYPE']
+      self.output_type  = plugin_dict['OUTPUT_TYPE']
+      self.executable   = plugin_dict['EXEC']
+      self.help_arg     = plugin_dict['HELP_ARG']
 
 
-def get_plugins(plugins_module):
+def get_plugins(plugins_module=ngs_plugins):
    '''
    Look into the plugins directory and create a list with all the available
    modules.
@@ -38,21 +41,45 @@ def get_plugins(plugins_module):
    plugins_list = []
    for dirname, dirnames, filenames in walklevel(check_dir(getattr(plugins_module,'__path__')[0]),level=1):
       for filename in filenames:
-         if filename.endswith('.py'):
+         if filename.endswith('.ngsp'):
             if filename.startswith('__'):
                pass
             else:
-               plugins_list.append(filename.strip()[:-3])
+               plugins_list.append(filename.strip()[:-5])
    return plugins_list
 
 
 
-def config_parse(plugin):
+def plugin_parse(plugin,plugins_module=ngs_plugins):
    '''
-   Parse the config file in the project directory, and find the plugin specific
-   configuration. If the config file is not found a new one with sdandard
-   parameters will be created
+   Parse the plugin file in the plugin directory, and create the plugin object
    '''
+   plugin_path = check_dir(getattr(plugins_module,'__path__')[0])
+   plugin_file = os.path.join(plugin_path,plugin)
+   plugin_dict = {'NAME':'','DESCRIPTION':'',
+                  'INPUT_TYPE':'','OUTPUT_TYPE':'',
+                  'PURPOSE':'','EXEC':'','HELP_ARG':''}
+   if os.path.isfile(plugin_file):
+      with open(plugin_file,'rb') as ngsp:
+         for line in ngsp:
+            bottle = ""
+            if line.startswith('#'):
+               pass
+            else:
+               quote_open = False
+               for letter in line:
+                  bottle += letter
+                  if quote_open:
+                     if letter =='"':
+                        break
+                  if letter == '"':
+                     quote_open = True
+            if bottle.strip() != "":
+               conf_id, conf_val = bottle.split('=')
+               if conf_id in plugin_dict:
+                  plugin_dict[conf_id] = conf_val.strip('"')
+   return NGSplugin(plugin_dict)
+
 
 def config_new(directory):
    '''

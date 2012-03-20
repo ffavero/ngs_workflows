@@ -1,0 +1,21 @@
+##############
+#
+# Pretty lame attempt to provide a general approach to different programs, so they
+# can be used in the workflow, without hardcoding them in the code.
+#
+#
+#
+
+NAME="bowtie"
+
+DESCRIPTION="bowtie is a program for fast alignment"
+
+INPUT_TYPE="fastq"
+
+OUTPUT_TYPE="bam"
+
+PURPOSE="alignment"
+
+EXEC="bowtie"
+
+HELP_ARG="--help"

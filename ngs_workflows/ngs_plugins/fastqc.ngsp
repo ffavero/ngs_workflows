@@ -1,0 +1,21 @@
+##############
+#
+# Pretty lame attempt to provide a general approach to different programs, so they
+# can be used in the workflow, without hardcoding them in the code.
+#
+#
+#
+
+NAME="fastqc"
+
+DESCRIPTION="FastQC perform quality assestment of a fastq file, and print out a report in html and testual format."
+
+INPUT_TYPE="fastq"
+
+OUTPUT_TYPE="txt"
+
+PURPOSE="quality"
+
+EXEC="fastqc"
+
+HELP_ARG="--help"
