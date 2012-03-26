@@ -12,3 +12,17 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with ngs_workflows.  If not, see <http://www.gnu.org/licenses/>.
+
+from ngs_workflows.utils import get_plugins
+
+_purpose = None
+
+
+def modules_tree(module_list):
+   '''
+   From the plugin list retrive the different informations and return the full
+   functions tree arranged by purposes
+   '''
+
+
+   return mod_dict

@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 
-#    This file is part of ngs_workflow.
+#    This file is part of ngs_workflows.
 #
-#    ngs_workflow is free software: you can redistribute it and/or modify
+#    ngs_workflows is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
 #
-#    ngs_workflow is distributed in the hope that it will be useful,
+#    ngs_workflows is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    You should have received a copy of the GNU General Public License
-#    along with ngs_workflow.  If not, see <http://www.gnu.org/licenses/>.
+#    along with ngs_workflows.  If not, see <http://www.gnu.org/licenses/>.
 
 import os, sys, gzip, ngs_plugins
 
@@ -45,7 +45,7 @@ def get_plugins(plugins_module=ngs_plugins):
             if filename.startswith('__'):
                pass
             else:
-               plugins_list.append(filename.strip()[:-5])
+               plugins_list.append(filename.strip())
    return plugins_list
 
 
@@ -53,6 +53,11 @@ def get_plugins(plugins_module=ngs_plugins):
 def plugin_parse(plugin,plugins_module=ngs_plugins):
    '''
    Parse the plugin file in the plugin directory, and create the plugin object
+   '''
+   '''
+   FIXME!! the plugin file don't consider the case of multiple
+   line argument... and oly conside double quote...
+   to lazy to think about it now...
    '''
    plugin_path = check_dir(getattr(plugins_module,'__path__')[0])
    plugin_file = os.path.join(plugin_path,plugin)
